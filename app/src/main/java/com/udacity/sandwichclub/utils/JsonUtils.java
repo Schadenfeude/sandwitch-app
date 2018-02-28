@@ -21,21 +21,23 @@ public class JsonUtils {
     private static final String IMAGE_KEY = "image";
     private static final String INGREDIENTS_KEY = "ingredients";
 
+    private static final String FALLBACK = "Information not available";
+
     public static Sandwich parseSandwichJson(String json) {
         Sandwich sandwich = null;
 
         try {
             final JSONObject sandwichJson = new JSONObject(json);
 
-            final JSONObject nameJson = sandwichJson.getJSONObject(NAME_KEY);
-            final String mainName = nameJson.getString(MAIN_NAME_KEY);
-            final List<String> aka = jsonArrayToStringList(nameJson.getJSONArray(AKA_NAME_KEY));
+            final JSONObject nameJson = sandwichJson.optJSONObject(NAME_KEY);
+            final String mainName = nameJson.optString(MAIN_NAME_KEY, FALLBACK);
+            final List<String> aka = jsonArrayToStringList(nameJson.optJSONArray(AKA_NAME_KEY));
 
-            final String placeOfOrigin = sandwichJson.getString(PLACE_OF_ORIGIN_KEY);
-            final String description = sandwichJson.getString(DESCRIPTION_KEY);
-            final String image = sandwichJson.getString(IMAGE_KEY);
+            final String placeOfOrigin = sandwichJson.optString(PLACE_OF_ORIGIN_KEY, FALLBACK);
+            final String description = sandwichJson.optString(DESCRIPTION_KEY, FALLBACK);
+            final String image = sandwichJson.optString(IMAGE_KEY, FALLBACK);
 
-            final JSONArray ingredientsJson = sandwichJson.getJSONArray(INGREDIENTS_KEY);
+            final JSONArray ingredientsJson = sandwichJson.optJSONArray(INGREDIENTS_KEY);
             final List<String> ingredients = jsonArrayToStringList(ingredientsJson);
 
             sandwich = new Sandwich(mainName, aka, placeOfOrigin, description, image, ingredients);

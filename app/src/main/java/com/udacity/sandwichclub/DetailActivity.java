@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ public class DetailActivity extends AppCompatActivity {
     private static final int DEFAULT_POSITION = -1;
     private static final String DELIMITER = ", ";
     private static final String LAST_DELIMITER = " and ";
+    private static final String DEFAULT = "Data not available";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +70,15 @@ public class DetailActivity extends AppCompatActivity {
         Picasso.with(this)
                 .load(sandwich.getImage())
                 .into(sandwichImageIv);
-        placeOfOriginTv.setText(sandwich.getPlaceOfOrigin());
-        descriptionTv.setText(sandwich.getDescription());
+        placeOfOriginTv.setText(getNonEmptyString(sandwich.getPlaceOfOrigin()));
+        descriptionTv.setText(getNonEmptyString(sandwich.getDescription()));
         populateTextFromList(alsoKnownAsTv, sandwich.getAlsoKnownAs());
         populateTextFromList(ingredientsTv, sandwich.getIngredients());
     }
 
     private void populateTextFromList(TextView textView, List<String> stringList) {
         if (stringList.isEmpty()) {
+            textView.setText(DEFAULT);
             return;
         }
 
@@ -92,25 +95,16 @@ public class DetailActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             formattedText.append(String.join(DELIMITER, stringList));
-            formattedText.insert(formattedText.lastIndexOf(DELIMITER), lastString);
-            formattedText.delete(formattedText.lastIndexOf(DELIMITER), formattedText.length());
         } else {
-            final Iterator<String> itemIterator = stringList.iterator();
-            String nextItem;
-
-            while (itemIterator.hasNext()) {
-                nextItem = itemIterator.next();
-                if (!itemIterator.hasNext()) {
-                    formattedText.append(nextItem);
-                } else {
-                    formattedText.append(nextItem).append(DELIMITER);
-                }
-            }
-
-            formattedText.insert(formattedText.lastIndexOf(DELIMITER), lastString);
-            formattedText.delete(formattedText.lastIndexOf(DELIMITER), formattedText.length());
+            formattedText.append(TextUtils.join(DELIMITER, stringList));
         }
+        formattedText.insert(formattedText.lastIndexOf(DELIMITER), lastString);
+        formattedText.delete(formattedText.lastIndexOf(DELIMITER), formattedText.length());
 
         return formattedText.toString();
+    }
+
+    private String getNonEmptyString(final String entry) {
+        return entry != null && !entry.isEmpty() ? entry : DEFAULT;
     }
 }
